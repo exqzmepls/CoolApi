@@ -21,7 +21,7 @@ namespace CoolApi.Controllers
         }
 
         [HttpGet]
-        [SwaggerOperation(Summary = "Read messages portion sorted by sending time.")]
+        [SwaggerOperation(Summary = "Reads messages portion.", Description = "Reads messages portion according to the query params and sorted by sending time.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns data portion.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid query parameters values.")]
         public ActionResult<GetMessagesModel> GetMessages(
@@ -46,7 +46,7 @@ namespace CoolApi.Controllers
         }
 
         [HttpGet("{id}")]
-        [SwaggerOperation(Summary = "Read message description by ID.")]
+        [SwaggerOperation(Summary = "Reads message description by ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns message description.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
         public ActionResult<GetMessageModel> GetMessage([SwaggerParameter(Description = "Message ID.")] Guid id)
@@ -55,29 +55,29 @@ namespace CoolApi.Controllers
         }
 
         [HttpPut("{id}")]
-        [SwaggerOperation(Summary = "Update message info.")]
-        [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns message updated description.")]
+        [SwaggerOperation(Summary = "Updates message details.", Description = "Message sender can change its content. Message receiver can change the view status.")]
+        [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns message updated details.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
         public ActionResult<GetMessageModel> PutMessage(
             [SwaggerParameter(Description = "Message ID.")] Guid id,
-            [SwaggerRequestBody(Description = "Message new description."), FromBody, Required] PutMessageModel message)
+            [SwaggerRequestBody(Description = "Message new details."), FromBody, Required] PutMessageModel message)
         {
             return new GetMessageModel { Id = Guid.Empty, Text = "some text" };
         }
 
         [HttpPost]
-        [SwaggerOperation(Summary = "Create new message.")]
+        [SwaggerOperation(Summary = "Creates new message.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns created message description.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
-        public ActionResult<GetMessageModel> PostMessage([SwaggerRequestBody(Description = "New message info."), FromBody, Required] PostMessageModel message)
+        public ActionResult<GetMessageModel> PostMessage([SwaggerRequestBody(Description = "New message details."), FromBody, Required] PostMessageModel message)
         {
             return new GetMessageModel { Text = message.Text, SendingTimeUtc = DateTime.UtcNow };
         }
 
         [HttpDelete("{id}")]
-        [SwaggerOperation(Summary = "Delete message.")]
-        [SwaggerResponse(StatusCodes.Status204NoContent, Description = "Message was deleted.")]
+        [SwaggerOperation(Summary = "Deletes message.", Description = "Deletes message and its attachments from chat.")]
+        [SwaggerResponse(StatusCodes.Status204NoContent, Description = "Message is deleted.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
         public IActionResult DeleteMessage(
             [SwaggerParameter(Description = "Message ID.")] Guid id,
