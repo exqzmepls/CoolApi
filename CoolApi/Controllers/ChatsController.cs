@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using CoolApi.Database;
-using CoolApi.Database.Models;
 using CoolApiModels.Chats;
+using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace CoolApi.Controllers
 {
@@ -22,9 +21,13 @@ namespace CoolApi.Controllers
             _context = context;
         }
 
-        // GET: api/Chats
         [HttpGet]
-        public ActionResult<GetChatsModel> GetChats([FromQuery] int offset = 0, [FromQuery] int portion = 10)
+        [SwaggerOperation(Summary = "Reads chats portion.", Description = "Reads chats descriptions sorted by last message sending time.")]
+        [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns data portion.")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid query parameters values.")]
+        public ActionResult<GetChatsModel> GetChats(
+            [SwaggerParameter(Description = "Offset of portion."), FromQuery, Required, Range(0, int.MaxValue)] int offset,
+            [SwaggerParameter(Description = "Portion size."), FromQuery, Required, Range(1, 30)] int portion)
         {
             const int totalCount = 322;
             var responsePortion = offset < totalCount ? (offset + portion < totalCount ? portion : totalCount - offset) : 0;
@@ -44,12 +47,13 @@ namespace CoolApi.Controllers
             };
 
             return result;
-            //return await _context.Chats.ToListAsync();
         }
 
-        // GET: api/Chats/5
         [HttpGet("{id}")]
-        public ActionResult<GetChatModel> GetChat(Guid id)
+        [SwaggerOperation(Summary = "Reads chat description by ID.")]
+        [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns chat description.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
+        public ActionResult<GetChatModel> GetChat([SwaggerParameter(Description = "Chat ID.")] Guid id)
         {
             var result = new GetChatModel
             {
@@ -64,49 +68,26 @@ namespace CoolApi.Controllers
             };
 
             return result;
-
-            /*var chat = await _context.Chats.FindAsync(id);
-
-            if (chat == null)
-            {
-                return NotFound();
-            }
-
-            return chat;*/
         }
 
-        // POST: api/Chats
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public ActionResult<GetChatModel> PostChat([FromBody] PostChatModel chat)
+        [SwaggerOperation(Summary = "Creates new chat.")]
+        [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns created chat description.")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
+        public ActionResult<GetChatModel> PostChat([SwaggerRequestBody(Description = "New chat details."), FromBody, Required] PostChatModel chat)
         {
             return new GetChatModel { Id = chat.ReceiverId, CreationTimeUtc = DateTime.UtcNow };
-
-            /*_context.Chats.Add(chat);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetChat", new { id = chat.Id }, chat);*/
         }
 
-        // DELETE: api/Chats/5
         [HttpDelete("{id}")]
-        public IActionResult DeleteChat(Guid id, [FromQuery] bool isForAll)
+        [SwaggerOperation(Summary = "Deletes chat.", Description = "Deletes chat and all messages in this chat.")]
+        [SwaggerResponse(StatusCodes.Status204NoContent, Description = "Chat is deleted.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
+        public IActionResult DeleteChat(
+            [SwaggerParameter(Description = "Chat ID.")] Guid id,
+            [SwaggerParameter(Description = "Must chat be deleted for all chat members."), FromQuery, Required] bool isForAll)
         {
-            /*var chat = await _context.Chats.FindAsync(id);
-            if (chat == null)
-            {
-                return NotFound();
-            }
-
-            _context.Chats.Remove(chat);
-            await _context.SaveChangesAsync();*/
-
             return NoContent();
-        }
-
-        private bool ChatExists(Guid id)
-        {
-            return _context.Chats.Any(e => e.Id == id);
         }
     }
 }

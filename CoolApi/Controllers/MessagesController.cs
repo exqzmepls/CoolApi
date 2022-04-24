@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using CoolApi.Database;
-using CoolApi.Database.Models;
 using CoolApiModels.Messages;
+using System.ComponentModel.DataAnnotations;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace CoolApi.Controllers
 {
@@ -22,18 +20,18 @@ namespace CoolApi.Controllers
             _context = context;
         }
 
-        // GET: api/Messages
         [HttpGet]
+        [SwaggerOperation(Summary = "Reads messages portion.", Description = "Reads messages portion according to the query params and sorted by sending time.")]
+        [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns data portion.")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid query parameters values.")]
         public ActionResult<GetMessagesModel> GetMessages(
-            [FromQuery] Guid chatId,
-            int offset,
-            int portion,
-            DateTime? timeFrom,
-            DateTime? timeTo,
-            string searchString)
+            [SwaggerParameter(Description = "Chat ID to take messages from."), FromQuery, Required] Guid chatId,
+            [SwaggerParameter(Description = "Offset of portion."), FromQuery, Required, Range(0, int.MaxValue)] int offset,
+            [SwaggerParameter(Description = "Portion size."), FromQuery, Required, Range(1, 25)] int portion,
+            [SwaggerParameter(Description = "Time to take messages from."), FromQuery] DateTime? timeFrom,
+            [SwaggerParameter(Description = "Time to take messages to."), FromQuery] DateTime? timeTo,
+            [SwaggerParameter(Description = "String to search by text of messages."), FromQuery, StringLength(32)] string searchString)
         {
-            // пользователь должен быть в чате
-
             return new GetMessagesModel
             {
                 Offset = offset,
@@ -45,96 +43,47 @@ namespace CoolApi.Controllers
                     new ShortGetMessageModel{Id = Guid.Empty, Text = "m2"}
                 }
             };
-
-            //return await _context.Messages.ToListAsync();
         }
 
-        // GET: api/Messages/5
         [HttpGet("{id}")]
-        public ActionResult<GetMessageModel> GetMessage(Guid id)
+        [SwaggerOperation(Summary = "Reads message description by ID.")]
+        [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns message description.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
+        public ActionResult<GetMessageModel> GetMessage([SwaggerParameter(Description = "Message ID.")] Guid id)
         {
-            // найти пользователя и сравнить сообщение => оно должно быть или его, или из с чата с его участием
-            /*var message = await _context.Messages.FindAsync(id);
-
-            if (message == null)
-            {
-                return NotFound();
-            }
-
-            return message;*/
-
             return new GetMessageModel { Id = id, Text = "some text" };
         }
 
-        // PUT: api/Messages/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public ActionResult<GetMessageModel> PutMessage(Guid id, PutMessageModel message)
+        [SwaggerOperation(Summary = "Updates message details.", Description = "Message sender can change its content. Message receiver can change the view status.")]
+        [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns message updated details.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
+        public ActionResult<GetMessageModel> PutMessage(
+            [SwaggerParameter(Description = "Message ID.")] Guid id,
+            [SwaggerRequestBody(Description = "Message new details."), FromBody, Required] PutMessageModel message)
         {
-            // найти пользователя и сравнить сообщение => оно должно быть или его (может изменять текст и вложения), или из с чата с его участием (тогда изменяемо только просмотр)
-
-            /*if (id != message.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(message).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MessageExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }*/
-
             return new GetMessageModel { Id = Guid.Empty, Text = "some text" };
         }
 
-        // POST: api/Messages
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public ActionResult<GetMessageModel> PostMessage(PostMessageModel message)
+        [SwaggerOperation(Summary = "Creates new message.")]
+        [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns created message description.")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
+        public ActionResult<GetMessageModel> PostMessage([SwaggerRequestBody(Description = "New message details."), FromBody, Required] PostMessageModel message)
         {
-            /*var messageDbModel = new Message
-            {
-                Text = message.Text
-            };
-            var addedMessage = _context.Messages.Add(message);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetMessage", new { id = message.Id }, message);*/
-
-            return new GetMessageModel { Text = message.Text, SendingDateUtc = DateTime.UtcNow };
+            return new GetMessageModel { Text = message.Text, SendingTimeUtc = DateTime.UtcNow };
         }
 
-        // DELETE: api/Messages/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMessage(Guid id, [FromQuery] bool isForAll)
+        [SwaggerOperation(Summary = "Deletes message.", Description = "Deletes message and its attachments from chat.")]
+        [SwaggerResponse(StatusCodes.Status204NoContent, Description = "Message is deleted.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
+        public IActionResult DeleteMessage(
+            [SwaggerParameter(Description = "Message ID.")] Guid id,
+            [SwaggerParameter(Description = "Must message be deleted for all chat members."), FromQuery, Required] bool isForAll)
         {
-            var message = await _context.Messages.FindAsync(id);
-            if (message == null)
-            {
-                return NotFound();
-            }
-
-            _context.Messages.Remove(message);
-            await _context.SaveChangesAsync();
-
             return NoContent();
-        }
-
-        private bool MessageExists(Guid id)
-        {
-            return _context.Messages.Any(e => e.Id == id);
         }
     }
 }
