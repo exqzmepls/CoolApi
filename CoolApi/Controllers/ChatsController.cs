@@ -22,7 +22,7 @@ namespace CoolApi.Controllers
         }
 
         [HttpGet]
-        [SwaggerOperation(Summary = "Read chats portion sorted by last message sending time.")]
+        [SwaggerOperation(Summary = "Reads chats portion.", Description = "Reads chats descriptions sorted by last message sending time.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns data portion.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid query parameters values.")]
         public ActionResult<GetChatsModel> GetChats(
@@ -50,7 +50,7 @@ namespace CoolApi.Controllers
         }
 
         [HttpGet("{id}")]
-        [SwaggerOperation(Summary = "Read chat description by ID.")]
+        [SwaggerOperation(Summary = "Reads chat description by ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns chat description.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
         public ActionResult<GetChatModel> GetChat([SwaggerParameter(Description = "Chat ID.")] Guid id)
@@ -71,17 +71,17 @@ namespace CoolApi.Controllers
         }
 
         [HttpPost]
-        [SwaggerOperation(Summary = "Create new chat.")]
+        [SwaggerOperation(Summary = "Creates new chat.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns created chat description.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
-        public ActionResult<GetChatModel> PostChat([SwaggerRequestBody(Description = "New char info."), FromBody, Required] PostChatModel chat)
+        public ActionResult<GetChatModel> PostChat([SwaggerRequestBody(Description = "New chat details."), FromBody, Required] PostChatModel chat)r
         {
             return new GetChatModel { Id = chat.ReceiverId, CreationTimeUtc = DateTime.UtcNow };
         }
 
         [HttpDelete("{id}")]
-        [SwaggerOperation(Summary = "Delete chat.")]
-        [SwaggerResponse(StatusCodes.Status204NoContent, Description = "Chat was deleted.")]
+        [SwaggerOperation(Summary = "Deletes chat.", Description = "Deletes chat and all messages in this chat.")]
+        [SwaggerResponse(StatusCodes.Status204NoContent, Description = "Chat is deleted.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
         public IActionResult DeleteChat(
             [SwaggerParameter(Description = "Chat ID.")] Guid id,
