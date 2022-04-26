@@ -24,20 +24,20 @@ namespace CoolApi.Controllers
         [SwaggerOperation(Summary = "Reads users portion.", Description = "Reads users portion according to the query params.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns data portion.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid query parameters values.")]
-        public ActionResult<GetUsersModel> GetUsers(
+        public ActionResult<UsersPortionDetails> GetUsers(
             [SwaggerParameter(Description = "Offset of portion."), FromQuery, Required, Range(0, int.MaxValue)] int offset,
             [SwaggerParameter(Description = "Portion size."), FromQuery, Required, Range(1, 50)] int portion,
             [SwaggerParameter(Description = "String to search by user login."), FromQuery, StringLength(32)] string searchString)
         {
-            return new GetUsersModel
+            return new UsersPortionDetails
             {
                 Offset = offset,
                 Portion = portion,
                 TotalCount = 999,
-                Content = new List<GetUserModel>
+                Content = new List<UserDetails>
                 {
-                    new GetUserModel{Id = Guid.Empty, Login = "user1"},
-                    new GetUserModel{Id = Guid.Empty, Login = "user2"}
+                    new UserDetails{Id = Guid.Empty, Login = "user1"},
+                    new UserDetails{Id = Guid.Empty, Login = "user2"}
                 }
             };
         }
@@ -46,9 +46,9 @@ namespace CoolApi.Controllers
         [SwaggerOperation(Summary = "Reads user profile info by ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns user profile info.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
-        public ActionResult<GetUserModel> GetUser([SwaggerParameter(Description = "User ID.")] Guid id)
+        public ActionResult<UserDetails> GetUser([SwaggerParameter(Description = "User ID.")] Guid id)
         {
-            return new GetUserModel { Id = id, Login = "user" };
+            return new UserDetails { Id = id, Login = "user" };
         }
 
         [HttpPut("{id}")]
@@ -56,20 +56,20 @@ namespace CoolApi.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns user updated profile info.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
-        public ActionResult<GetUserModel> PutUser(
+        public ActionResult<UserDetails> PutUser(
             [SwaggerParameter(Description = "User ID.")] Guid id,
-            [SwaggerRequestBody(Description = "User new details."), FromBody, Required] PutUserModel user)
+            [SwaggerRequestBody(Description = "User new details."), FromBody, Required] UserNewDetails user)
         {
-            return new GetUserModel { Id = Guid.Empty, Login = "newLogin" };
+            return new UserDetails { Id = Guid.Empty, Login = "newLogin" };
         }
 
         [HttpPost]
         [SwaggerOperation(Summary = "Creates new user.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns created user profile info.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
-        public ActionResult<GetUserModel> PostUser([SwaggerRequestBody(Description = "New user details."), FromBody, Required] PostUserModel user)
+        public ActionResult<UserDetails> PostUser([SwaggerRequestBody(Description = "New user details."), FromBody, Required] NewUserDetails user)
         {
-            return new GetUserModel { Id = Guid.Empty, Login = user.Login };
+            return new UserDetails { Id = Guid.Empty, Login = user.Login };
         }
 
         [HttpDelete("{id}")]

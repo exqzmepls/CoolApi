@@ -24,7 +24,7 @@ namespace CoolApi.Controllers
         [SwaggerOperation(Summary = "Reads messages portion.", Description = "Reads messages portion according to the query params and sorted by sending time.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns data portion.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid query parameters values.")]
-        public ActionResult<GetMessagesModel> GetMessages(
+        public ActionResult<MessagesPortionDetails> GetMessages(
             [SwaggerParameter(Description = "Chat ID to take messages from."), FromQuery, Required] Guid chatId,
             [SwaggerParameter(Description = "Offset of portion."), FromQuery, Required, Range(0, int.MaxValue)] int offset,
             [SwaggerParameter(Description = "Portion size."), FromQuery, Required, Range(1, 25)] int portion,
@@ -32,15 +32,15 @@ namespace CoolApi.Controllers
             [SwaggerParameter(Description = "Time to take messages to."), FromQuery] DateTime? timeTo,
             [SwaggerParameter(Description = "String to search by text of messages."), FromQuery, StringLength(32)] string searchString)
         {
-            return new GetMessagesModel
+            return new MessagesPortionDetails
             {
                 Offset = offset,
                 Portion = portion,
                 TotalCount = 999,
-                Content = new List<ShortGetMessageModel>
+                Content = new List<MessageShortDetails>
                 {
-                    new ShortGetMessageModel{Id = Guid.Empty, Text = "m1"},
-                    new ShortGetMessageModel{Id = Guid.Empty, Text = "m2"}
+                    new MessageShortDetails{Id = Guid.Empty, Text = "m1"},
+                    new MessageShortDetails{Id = Guid.Empty, Text = "m2"}
                 }
             };
         }
@@ -49,9 +49,9 @@ namespace CoolApi.Controllers
         [SwaggerOperation(Summary = "Reads message description by ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns message description.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
-        public ActionResult<GetMessageModel> GetMessage([SwaggerParameter(Description = "Message ID.")] Guid id)
+        public ActionResult<MessageDetails> GetMessage([SwaggerParameter(Description = "Message ID.")] Guid id)
         {
-            return new GetMessageModel { Id = id, Text = "some text" };
+            return new MessageDetails { Id = id, Text = "some text" };
         }
 
         [HttpPut("{id}")]
@@ -59,20 +59,20 @@ namespace CoolApi.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns message updated details.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
-        public ActionResult<GetMessageModel> PutMessage(
+        public ActionResult<MessageDetails> PutMessage(
             [SwaggerParameter(Description = "Message ID.")] Guid id,
-            [SwaggerRequestBody(Description = "Message new details."), FromBody, Required] PutMessageModel message)
+            [SwaggerRequestBody(Description = "Message new details."), FromBody, Required] MessageNewDetails message)
         {
-            return new GetMessageModel { Id = Guid.Empty, Text = "some text" };
+            return new MessageDetails { Id = Guid.Empty, Text = "some text" };
         }
 
         [HttpPost]
         [SwaggerOperation(Summary = "Creates new message.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns created message description.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
-        public ActionResult<GetMessageModel> PostMessage([SwaggerRequestBody(Description = "New message details."), FromBody, Required] PostMessageModel message)
+        public ActionResult<MessageDetails> PostMessage([SwaggerRequestBody(Description = "New message details."), FromBody, Required] NewMessageDetails message)
         {
-            return new GetMessageModel { Text = message.Text, SendingTimeUtc = DateTime.UtcNow };
+            return new MessageDetails { Text = message.Text, SendingTimeLocal = DateTime.UtcNow };
         }
 
         [HttpDelete("{id}")]
