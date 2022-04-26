@@ -74,7 +74,7 @@ namespace CoolApi.Controllers
         [SwaggerOperation(Summary = "Creates new chat.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns created chat description.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
-        public ActionResult<GetChatModel> PostChat([SwaggerRequestBody(Description = "New chat details."), FromBody, Required] PostChatModel chat)
+        public ActionResult<GetChatModel> PostChat([SwaggerRequestBody(Description = "New chat details."), FromBody, Required] PostChatModel chat)r
         {
             return new GetChatModel { Id = chat.ReceiverId, CreationTimeUtc = DateTime.UtcNow };
         }
