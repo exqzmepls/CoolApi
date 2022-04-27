@@ -8,11 +8,13 @@ using CoolApiModels.Chats;
 using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 using CoolApiModels.Users;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CoolApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ChatsController : ControllerBase
     {
         private readonly CoolContext _context;

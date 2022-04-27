@@ -6,6 +6,7 @@ using CoolApi.Database;
 using CoolApiModels.Users;
 using System.ComponentModel.DataAnnotations;
 using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CoolApi.Controllers
 {
@@ -21,6 +22,7 @@ namespace CoolApi.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [SwaggerOperation(Summary = "Reads users portion.", Description = "Reads users portion according to the query params.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns data portion.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid query parameters values.")]
@@ -43,6 +45,7 @@ namespace CoolApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         [SwaggerOperation(Summary = "Reads user profile info by ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns user profile info.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
@@ -52,6 +55,7 @@ namespace CoolApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         [SwaggerOperation(Summary = "Updates user details.", Description = "User can change their Login or/and Password.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns user updated profile info.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
@@ -73,6 +77,7 @@ namespace CoolApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         [SwaggerOperation(Summary = "Deletes user.", Description = "Deletes user profile, chats and all messages. All messages of other users from chats with this user are also deleted.")]
         [SwaggerResponse(StatusCodes.Status204NoContent, Description = "User is deleted.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
