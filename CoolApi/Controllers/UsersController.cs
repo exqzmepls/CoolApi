@@ -54,6 +54,17 @@ namespace CoolApi.Controllers
             return new UserDetails { Id = id, Login = "user" };
         }
 
+        [HttpGet("auth")]
+        [SwaggerOperation(Summary = "Performs user authentication.")]
+        [SwaggerResponse(StatusCodes.Status204NoContent, Description = "Successful authentication.")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Authentication error (wrong login or password).")]
+        public IActionResult Authenticate(
+            [SwaggerParameter(Description = "User login."), FromQuery, Required] string login,
+            [SwaggerParameter(Description = "User password."), FromQuery, Required] string password)
+        {
+            return NoContent();
+        }
+
         [HttpPut("{id}")]
         [Authorize]
         [SwaggerOperation(Summary = "Updates user details.", Description = "User can change their Login or/and Password.")]

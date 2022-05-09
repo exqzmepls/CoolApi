@@ -28,18 +28,15 @@ namespace CoolApi
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
+                    var key = new byte[16];
                     options.RequireHttpsMetadata = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        // укзывает, будет ли валидироваться издатель при валидации токена
                         ValidateIssuer = false,
-                        // будет ли валидироваться потребитель токена
                         ValidateAudience = false,
                         ValidateLifetime = false,
-                        // установка ключа безопасности
-                        IssuerSigningKey = new SymmetricSecurityKey(new byte[4]),
-                        // валидация ключа безопасности
-                        ValidateIssuerSigningKey = true
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
                     };
                 });
             services.AddDbContext<CoolContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DebugDb")));
@@ -50,24 +47,14 @@ namespace CoolApi
 
                 var jwtSecurityScheme = new OpenApiSecurityScheme
                 {
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
+                    Scheme = JwtBearerDefaults.AuthenticationScheme,
                     Name = "Authorization",
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.ApiKey,
-                    Description = "Enter token.",
-
-                    Reference = new OpenApiReference
-                    {
-                        Id = JwtBearerDefaults.AuthenticationScheme,
-                        Type = ReferenceType.SecurityScheme
-                    }
+                    Description = "Enter the Bearer Authorization string as following: `Bearer <JsonWebToken>`"
                 };
-                c.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-                {
-                    { jwtSecurityScheme, Array.Empty<string>() }
-                });
+                c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, jwtSecurityScheme);
+                c.OperationFilter<AuthSwaggerOperationFilter>();
             });
         }
 
