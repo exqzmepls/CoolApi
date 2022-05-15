@@ -74,7 +74,7 @@ namespace CoolApi.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
         public ActionResult<MessageDetails> PostMessage([SwaggerRequestBody(Description = "New message details."), FromBody, Required] NewMessageDetails message)
         {
-            return new MessageDetails { Text = message.Text, SendingTimeLocal = DateTime.UtcNow };
+            return new MessageDetails { Text = message.Text, SendingTimeUtc = DateTime.UtcNow };
         }
 
         [HttpDelete("{id}")]

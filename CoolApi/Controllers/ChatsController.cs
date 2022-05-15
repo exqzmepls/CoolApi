@@ -45,7 +45,7 @@ namespace CoolApi.Controllers
                     .Select(x => new ChatShortDetails
                     {
                         Id = Guid.Empty,
-                        CreationTimeLocal = DateTime.MinValue
+                        CreationTimeUtc = DateTime.MinValue
                     }))
             };
 
@@ -61,7 +61,7 @@ namespace CoolApi.Controllers
             var result = new ChatDetails
             {
                 Id = id,
-                CreationTimeLocal = DateTime.MinValue,
+                CreationTimeUtc = DateTime.MinValue,
                 ChatMembers = Enumerable.Empty<UserDetails>()
             };
 
@@ -74,7 +74,7 @@ namespace CoolApi.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
         public ActionResult<ChatDetails> PostChat([SwaggerRequestBody(Description = "New chat details."), FromBody, Required] NewChatDetails chat)
         {
-            return new ChatDetails { Id = chat.ReceiverId, CreationTimeLocal = DateTime.Now };
+            return new ChatDetails { Id = chat.ReceiverId, CreationTimeUtc = DateTime.Now };
         }
 
         [HttpDelete("{id}")]
