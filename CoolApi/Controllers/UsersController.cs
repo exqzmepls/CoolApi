@@ -70,7 +70,7 @@ namespace CoolApi.Controllers
         [SwaggerOperation(Summary = "Updates user details.", Description = "User can change their Login or/and Password.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns user updated profile info.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.", Type = typeof(ValidationProblemDetails))]
         public ActionResult<UserDetails> PutUser(
             [SwaggerParameter(Description = "User ID.")] Guid id,
             [SwaggerRequestBody(Description = "User new details."), FromBody, Required] UserNewDetails user)
