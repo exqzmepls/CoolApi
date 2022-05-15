@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System;
+using System.Text;
 
 namespace CoolApi
 {
@@ -25,34 +25,37 @@ namespace CoolApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    var key = new byte[16];
-                    options.RequireHttpsMetadata = false;
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ValidateLifetime = false,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(key),
-                    };
-                });
-            services.AddDbContext<CoolContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DebugDb")));
+
+            var connetionString = Configuration.GetConnectionString("DebugDb");
+            services.AddDbContext<CoolContext>(options => options.UseSqlServer(connetionString));
+
+            var key = Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]);
+            var tokenParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+            };
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = tokenParameters;
+            });
+
+            var jwtSecurityScheme = new OpenApiSecurityScheme
+            {
+                Scheme = JwtBearerDefaults.AuthenticationScheme,
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey,
+                Description = "Enter the Bearer Authorization string as following: `Bearer <JsonWebToken>`"
+            };
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CoolApi", Version = "v1" });
                 c.EnableAnnotations();
-
-                var jwtSecurityScheme = new OpenApiSecurityScheme
-                {
-                    Scheme = JwtBearerDefaults.AuthenticationScheme,
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Description = "Enter the Bearer Authorization string as following: `Bearer <JsonWebToken>`"
-                };
                 c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, jwtSecurityScheme);
                 c.OperationFilter<AuthSwaggerOperationFilter>();
             });
@@ -62,11 +65,10 @@ namespace CoolApi
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
-            {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CoolApi v1"));
-            }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CoolApi v1"));
 
             app.UseHttpsRedirection();
 
