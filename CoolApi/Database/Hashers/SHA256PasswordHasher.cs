@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CoolApi.Database.Hashers
 {
-    public class MD5PasswordHasher : IPasswordHasher
+    public class SHA256PasswordHasher : IPasswordHasher
     {
         public string GetPasswordHash(string password)
         {

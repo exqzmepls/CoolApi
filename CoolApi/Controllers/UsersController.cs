@@ -18,7 +18,7 @@ namespace CoolApi.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly IPasswordHasher _passwordHasher = new MD5PasswordHasher();
+        private readonly IPasswordHasher _passwordHasher = new SHA256PasswordHasher();
 
         private readonly IRepository<User, ReadPortionUserOptions, ReadUserOptions, CreateUserOptions, UpdateUserOptions, DeleteUserOptions> _repository;
 

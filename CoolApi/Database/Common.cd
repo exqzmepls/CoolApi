@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="CoolApi.Database.CoolContext" Collapsed="true">
+    <Position X="0.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAACAAAAAEAAGBAAQAAAgAEAAAAAAAAAAAAQAAAAA=</HashCode>
+      <FileName>Database\CoolContext.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoolApi.Database.Repositories.ReadPortionResult&lt;TEntity&gt;">
+    <Position X="11.25" Y="0.5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAABAAAAAAAAAAAAAAACAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Database\Repositories\ReadPortionResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoolApi.Database.Repositories.ChatRepository">
+    <Position X="3.5" Y="3" Width="7" />
+    <Members>
+      <Method Name="Save" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAQAAIAAAAAABAAAEAAAAAAgAAEAAEAAAAAAAAEAAAA=</HashCode>
+      <FileName>Database\Repositories\ChatRepository.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.356" />
+  </Class>
+  <Class Name="CoolApi.Database.Repositories.MessageRepository">
+    <Position X="11" Y="2.75" Width="4" />
+    <Members>
+      <Method Name="Save" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAQAAIAAAAAABAAAEAAAAAAgAAEAAEAAAAAAAAEAAAA=</HashCode>
+      <FileName>Database\Repositories\MessageRepository.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Microsoft.EntityFrameworkCore.DbContext" Collapsed="true">
+    <Position X="0.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="CoolApi.Database.Hashers.MD5PasswordHasher">
+    <Position X="15.5" Y="5.25" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAACAAAAgAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Database\Hashers\MD5PasswordHasher.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="CoolApi.Database.Identity.UserManager">
+    <Position X="14.5" Y="0.5" Width="5.75" />
+    <TypeIdentifier>
+      <HashCode>gAQAAAAAAAAAhAAAAAACAAAAAAABAEAAACAAABAAAAA=</HashCode>
+      <FileName>Database\Identity\UserManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoolApi.Controllers.ChatsController">
+    <Position X="0.5" Y="5" Width="4.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAKDAAAAAAAAAAAAAAAAQIAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Controllers\ChatsController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoolApi.Controllers.MessagesController">
+    <Position X="0.5" Y="8.5" Width="8.75" />
+    <TypeIdentifier>
+      <HashCode>AGAAAAAAAAAABEAAAAAAAAAAAAAAEAAAAAAAAACAAAA=</HashCode>
+      <FileName>Controllers\MessagesController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoolApi.Controllers.UsersController">
+    <Position X="7.25" Y="6.5" Width="7.75" />
+    <TypeIdentifier>
+      <HashCode>IgQAAAAAAADAAAAEAAAAAAIAQAAAIAAAMAAAAAAAAAA=</HashCode>
+      <FileName>Controllers\UsersController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="CoolApi.Database.Repositories.IRepository&lt;TEntity&gt;">
+    <Position X="3.5" Y="0.5" Width="6.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAAAAEAAAAAAgAAEAAEAAAAAAAAEAAAA=</HashCode>
+      <FileName>Database\Repositories\IRepository.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CoolApi.Database.Hashers.IPasswordHasher">
+    <Position X="15.5" Y="1.75" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAACAAAAgAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Database\Hashers\IPasswordHasher.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

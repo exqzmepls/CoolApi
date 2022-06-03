@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace CoolApi.Database.Repositories.Results
+namespace CoolApi.Database.Repositories
 {
-    public class PortionResult<TEntity> where TEntity : class
+    public class ReadPortionResult<TEntity> where TEntity : class
     {
         public int TotalCount { get; init; }
 

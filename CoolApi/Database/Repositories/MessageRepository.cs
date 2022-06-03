@@ -4,27 +4,25 @@ using System.Linq.Expressions;
 
 namespace CoolApi.Database.Repositories
 {
-    public class ChatRepository : IRepository<Chat>
+    public class MessageRepository : IRepository<Message>
     {
         private readonly CoolContext _context;
 
-        public ChatRepository(CoolContext context)
+        public MessageRepository(CoolContext context)
         {
             _context = context;
         }
 
-        public Guid Create(Chat entity, Guid userId)
+        public Guid Create(Message entity, Guid userId)
         {
-            throw new NotImplementedException();
-            var addedChat = _context.Chats.Add(entity);
             Save();
-            return addedChat.Entity.Id;
+            throw new NotImplementedException();
         }
 
         public void Delete(Guid entityId, Guid userId)
         {
-
             Save();
+            throw new NotImplementedException();
         }
 
         public void Hide(Guid entityId, Guid userId)
@@ -32,18 +30,19 @@ namespace CoolApi.Database.Repositories
             throw new NotImplementedException();
         }
 
-        public Chat Read(Guid entityId, Guid userId)
+        public Message Read(Guid entityId, Guid userId)
         {
             throw new NotImplementedException();
         }
 
-        public ReadPortionResult<Chat> ReadPortion(int offset, int size, Expression<Func<Chat, bool>> filter, Guid userId)
+        public ReadPortionResult<Message> ReadPortion(int offset, int size, Expression<Func<Message, bool>> filter, Guid userId)
         {
             throw new NotImplementedException();
         }
 
-        public void Update(Chat entity, Guid userId)
+        public void Update(Message entity, Guid userId)
         {
+            Save();
             throw new NotImplementedException();
         }
 
