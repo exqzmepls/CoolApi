@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CoolApi.Database.Models
 {
@@ -13,5 +14,9 @@ namespace CoolApi.Database.Models
         public Guid UserId { get; set; }
 
         public User User { get; set; }
+
+        public IEnumerable<ChatMemberMessage> ChatMemberMessages { get; set; }
+
+        public IEnumerable<ChatMemberDeleted> ChatMemberDeleteds { get; set; }
     }
 }

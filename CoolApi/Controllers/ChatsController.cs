@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -33,28 +32,22 @@ namespace CoolApi.Controllers
         public ActionResult<ChatsPortionDetails> GetChats([SwaggerParameter(Description = "Offset of portion."), FromQuery, Required, Range(0, int.MaxValue)] int offset,
             [SwaggerParameter(Description = "Portion size."), FromQuery, Required, Range(1, 30)] int portion)
         {
-            //var userId = GetCurrentUserId();
-            //var readPortionOptions = new ReadPortionChatOptions
-            //{
-            //    UserId = userId,
-            //    Offset = offset,
-            //    Portion = portion
-            //};
-            //var result = _repository.ReadPortion(readPortionOptions);
-            //var chats = result.DataCollection;
+            var userId = GetCurrentUserId();
+            var result = _repository.ReadPortion(offset, portion, (c) => true, userId);
 
-            //var response = new ChatsPortionDetails
-            //{
-            //    Offset = offset,
-            //    Portion = chats.Count(),
-            //    TotalCount = result.TotalCount,
-            //    Content = chats.Select(c => new ChatShortDetails
-            //    {
-            //        Id = c.Id,
-            //        CreationTimeUtc = c.CreationTimeUtc
-            //    })
-            //};
-            return new ChatsPortionDetails();
+            var chats = result.DataCollection;
+            var response = new ChatsPortionDetails
+            {
+                Offset = offset,
+                Portion = chats.Count(),
+                TotalCount = result.TotalCount,
+                Content = chats.Select(c => new ChatShortDetails
+                {
+                    Id = c.Id,
+                    CreationTimeUtc = c.CreationTimeUtc
+                })
+            };
+            return response;
         }
 
         [HttpGet("{id}")]
@@ -69,16 +62,7 @@ namespace CoolApi.Controllers
             if (chat == null)
                 return NotFound();
 
-            var response = new ChatDetails
-            {
-                Id = chat.Id,
-                CreationTimeUtc = chat.CreationTimeUtc,
-                ChatMembers = chat.ChatMembers.Select(m => new UserDetails
-                {
-                    Id = m.UserId,
-                    Login = m.User.Login
-                })
-            };
+            var response = GetDto(chat);
             return response;
         }
 
@@ -86,10 +70,33 @@ namespace CoolApi.Controllers
         [SwaggerOperation(Summary = "Creates new chat.")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns created chat description.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
-        public ActionResult<ChatDetails> PostChat([SwaggerRequestBody(Description = "New chat details."), FromBody, Required] NewChatDetails chat)
+        public ActionResult<ChatDetails> PostChat([SwaggerRequestBody(Description = "New chat details."), FromBody, Required] NewChatDetails newChatDetails)
         {
             var userId = GetCurrentUserId();
-            return new ChatDetails();
+            var newChat = new Chat
+            {
+                ChatMembers = new ChatMember[]
+                {
+                    new ChatMember {UserId = userId},
+                    new ChatMember {UserId = newChatDetails.ReceiverId}
+                }
+            };
+
+            try
+            {
+                var newChatId = _repository.Create(newChat, userId);
+                var createdChat = _repository.Read(newChatId, userId);
+                if (createdChat == null)
+                    return BadRequest("no chat");
+
+                var response = GetDto(createdChat);
+                return response;
+            }
+            catch (Exception exception)
+            {
+                var error = GetProblemDetails(exception);
+                return BadRequest(error);
+            }
         }
 
         [HttpDelete("{id}")]
@@ -99,25 +106,37 @@ namespace CoolApi.Controllers
         public IActionResult DeleteChat([SwaggerParameter(Description = "Chat ID.")] Guid id,
             [SwaggerParameter(Description = "Must chat be deleted for all chat members."), FromQuery, Required] bool isForAll)
         {
-            //var userId = GetCurrentUserId();
-            //var deleteOptions = new DeleteChatOptions
-            //{
-            //    UserId = userId,
-            //    Id = id,
-            //    IsForAll = isForAll
-            //};
-            //try
-            //{
-            //    _repository.Delete(deleteOptions);
-            //    _repository.Save();
-            //}
-            //catch (Exception exception)
-            //{
-            //    var error = GetProblemDetails(exception);
-            //    return BadRequest(error);
-            //}
+            var userId = GetCurrentUserId();
+            try
+            {
+                if (isForAll)
+                    _repository.Delete(id, userId);
+                else
+                    _repository.Hide(id, userId);
+            }
+            catch (Exception exception)
+            {
+                var error = GetProblemDetails(exception);
+                return BadRequest(error);
+            }
 
             return NoContent();
+        }
+
+
+        private static ChatDetails GetDto(Chat chat)
+        {
+            var dto = new ChatDetails
+            {
+                Id = chat.Id,
+                CreationTimeUtc = chat.CreationTimeUtc,
+                ChatMembers = chat.ChatMembers.Select(m => new UserDetails
+                {
+                    Id = m.UserId,
+                    Login = m.User.Login
+                })
+            };
+            return dto;
         }
 
         private static ProblemDetails GetProblemDetails(Exception exception)
