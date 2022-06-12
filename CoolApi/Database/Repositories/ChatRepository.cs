@@ -1,5 +1,6 @@
 ﻿using CoolApi.Database.Models;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace CoolApi.Database.Repositories
@@ -15,7 +16,13 @@ namespace CoolApi.Database.Repositories
 
         public Guid Create(Chat entity, Guid userId)
         {
-            throw new NotImplementedException();
+            var chat = new Chat
+            {
+                Id = Guid.NewGuid(),
+                CreationTimeUtc = DateTime.UtcNow,
+            };
+            return chat.Id;
+
             var addedChat = _context.Chats.Add(entity);
             Save();
             return addedChat.Entity.Id;
@@ -29,17 +36,27 @@ namespace CoolApi.Database.Repositories
 
         public void Hide(Guid entityId, Guid userId)
         {
-            throw new NotImplementedException();
+
+            Save();
         }
 
         public Chat Read(Guid entityId, Guid userId)
         {
-            throw new NotImplementedException();
+            var chat = new Chat
+            {
+                Id = entityId
+            };
+            return chat;
         }
 
         public ReadPortionResult<Chat> ReadPortion(int offset, int size, Expression<Func<Chat, bool>> filter, Guid userId)
         {
-            throw new NotImplementedException();
+            var portion = new ReadPortionResult<Chat>
+            {
+                TotalCount = int.MaxValue,
+                DataCollection = Enumerable.Range(0, size).Select(i => new Chat())
+            };
+            return portion;
         }
 
         public void Update(Chat entity, Guid userId)
