@@ -11,7 +11,6 @@ using CoolApiModels.Users;
 using Microsoft.AspNetCore.Authorization;
 using CoolApi.Database.Repositories;
 using CoolApi.Database.Models;
-using CoolApi.Database.Options;
 
 namespace CoolApi.Controllers
 {
@@ -20,7 +19,7 @@ namespace CoolApi.Controllers
     [Authorize]
     public class ChatsController : ControllerBase
     {
-        private readonly IRepository<Chat, ReadPortionChatOptions, ReadChatOptions, CreateChatOptions, UpdateChatOptions, DeleteChatOptions> _repository;
+        private readonly IRepository<Chat> _repository;
 
         public ChatsController(CoolContext context)
         {
@@ -34,28 +33,28 @@ namespace CoolApi.Controllers
         public ActionResult<ChatsPortionDetails> GetChats([SwaggerParameter(Description = "Offset of portion."), FromQuery, Required, Range(0, int.MaxValue)] int offset,
             [SwaggerParameter(Description = "Portion size."), FromQuery, Required, Range(1, 30)] int portion)
         {
-            var userId = GetCurrentUserId();
-            var readPortionOptions = new ReadPortionChatOptions
-            {
-                UserId = userId,
-                Offset = offset,
-                Portion = portion
-            };
-            var result = _repository.ReadPortion(readPortionOptions);
-            var chats = result.DataCollection;
+            //var userId = GetCurrentUserId();
+            //var readPortionOptions = new ReadPortionChatOptions
+            //{
+            //    UserId = userId,
+            //    Offset = offset,
+            //    Portion = portion
+            //};
+            //var result = _repository.ReadPortion(readPortionOptions);
+            //var chats = result.DataCollection;
 
-            var response = new ChatsPortionDetails
-            {
-                Offset = offset,
-                Portion = chats.Count(),
-                TotalCount = result.TotalCount,
-                Content = chats.Select(c => new ChatShortDetails
-                {
-                    Id = c.Id,
-                    CreationTimeUtc = c.CreationTimeUtc
-                })
-            };
-            return response;
+            //var response = new ChatsPortionDetails
+            //{
+            //    Offset = offset,
+            //    Portion = chats.Count(),
+            //    TotalCount = result.TotalCount,
+            //    Content = chats.Select(c => new ChatShortDetails
+            //    {
+            //        Id = c.Id,
+            //        CreationTimeUtc = c.CreationTimeUtc
+            //    })
+            //};
+            return new ChatsPortionDetails();
         }
 
         [HttpGet("{id}")]
@@ -65,12 +64,7 @@ namespace CoolApi.Controllers
         public ActionResult<ChatDetails> GetChat([SwaggerParameter(Description = "Chat ID.")] Guid id)
         {
             var userId = GetCurrentUserId();
-            var readOptions = new ReadChatOptions
-            {
-                UserId = userId,
-                EntityId = id
-            };
-            var chat = _repository.Read(readOptions);
+            var chat = _repository.Read(id, userId);
 
             if (chat == null)
                 return NotFound();
@@ -95,7 +89,7 @@ namespace CoolApi.Controllers
         public ActionResult<ChatDetails> PostChat([SwaggerRequestBody(Description = "New chat details."), FromBody, Required] NewChatDetails chat)
         {
             var userId = GetCurrentUserId();
-            // ???
+            return new ChatDetails();
         }
 
         [HttpDelete("{id}")]
@@ -105,23 +99,23 @@ namespace CoolApi.Controllers
         public IActionResult DeleteChat([SwaggerParameter(Description = "Chat ID.")] Guid id,
             [SwaggerParameter(Description = "Must chat be deleted for all chat members."), FromQuery, Required] bool isForAll)
         {
-            var userId = GetCurrentUserId();
-            var deleteOptions = new DeleteChatOptions
-            {
-                UserId = userId,
-                Id = id,
-                IsForAll = isForAll
-            };
-            try
-            {
-                _repository.Delete(deleteOptions);
-                _repository.Save();
-            }
-            catch (Exception exception)
-            {
-                var error = GetProblemDetails(exception);
-                return BadRequest(error);
-            }
+            //var userId = GetCurrentUserId();
+            //var deleteOptions = new DeleteChatOptions
+            //{
+            //    UserId = userId,
+            //    Id = id,
+            //    IsForAll = isForAll
+            //};
+            //try
+            //{
+            //    _repository.Delete(deleteOptions);
+            //    _repository.Save();
+            //}
+            //catch (Exception exception)
+            //{
+            //    var error = GetProblemDetails(exception);
+            //    return BadRequest(error);
+            //}
 
             return NoContent();
         }
