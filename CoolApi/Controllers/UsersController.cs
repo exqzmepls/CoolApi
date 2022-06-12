@@ -6,10 +6,10 @@ using CoolApiModels.Users;
 using System.ComponentModel.DataAnnotations;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.AspNetCore.Authorization;
-using CoolApi.Database.Repositories;
 using CoolApi.Database.Models;
 using System.Linq;
 using CoolApi.Database.Hashers;
+using CoolApi.Database.Identity;
 
 namespace CoolApi.Controllers
 {
@@ -17,43 +17,35 @@ namespace CoolApi.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly IPasswordHasher _passwordHasher = new SHA256PasswordHasher();
-
-        private readonly IRepository<User> _repository;
+        private readonly UserManager _userManager;
 
         public UsersController(CoolContext context)
         {
-            //_repository = new UserRepository(context);
+            var passwordHasher = new SHA256PasswordHasher();
+            _userManager = new UserManager(context, passwordHasher);
         }
 
         [HttpGet]
         [Authorize]
         [SwaggerOperation(Summary = "Reads users portion.", Description = "Reads users portion according to the query params.")]
-        [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns data portion.")]
+        [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns users portion ordered by login.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid query parameters values.")]
         public ActionResult<UsersPortionDetails> GetUsers([SwaggerParameter(Description = "Offset of portion."), FromQuery, Required, Range(0, int.MaxValue)] int offset,
             [SwaggerParameter(Description = "Portion size."), FromQuery, Required, Range(1, 50)] int portion,
             [SwaggerParameter(Description = "String to search by user login."), FromQuery, StringLength(32)] string searchString)
         {
-            //var options = new ReadPortionUserOptions
-            //{
-            //    Offset = offset,
-            //    Portion = portion,
-            //    LoginSubstring = searchString
-            //};
-            //var result = _repository.ReadPortion(options);
-            //var users = result.DataCollection;
+            var usersCollection = _userManager.FindByLogin(offset, portion, searchString);
 
-            //var responseContent = users.Select(u => GetDto(u));
-            //var response = new UsersPortionDetails
-            //{
-            //    Offset = offset,
-            //    Portion = users.Count(),
-            //    TotalCount = result.TotalCount,
-            //    Content = responseContent
-            //};
-
-            return new UsersPortionDetails();
+            var users = usersCollection.Collection;
+            var content = users.Select(u => GetDto(u));
+            var response = new UsersPortionDetails
+            {
+                Offset = offset,
+                Portion = users.Count(),
+                TotalCount = usersCollection.TotalCount,
+                Content = content
+            };
+            return response;
         }
 
         [HttpGet("{id}")]
@@ -63,13 +55,12 @@ namespace CoolApi.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
         public ActionResult<UserDetails> GetUser([SwaggerParameter(Description = "User ID.")] Guid id)
         {
-            //var user = _repository.Read();
-            //if (user == null)
-            //    return NotFound();
+            var user = _userManager.FindById(id);
+            if (user == null)
+                return NotFound();
 
-            //var response = GetDto(user);
-
-            return new UserDetails();
+            var response = GetDto(user);
+            return response;
         }
 
         [HttpGet("auth")]
@@ -79,8 +70,11 @@ namespace CoolApi.Controllers
         public IActionResult Authenticate([SwaggerParameter(Description = "User login."), FromQuery, Required] string login,
             [SwaggerParameter(Description = "User password."), FromQuery, Required] string password)
         {
+            var isPasswordValid = _userManager.VerifyPassword(login, password);
+            if (isPasswordValid)
+                return NoContent();
 
-            return NoContent();
+            return BadRequest();
         }
 
         [HttpPut("{id}")]
@@ -90,51 +84,43 @@ namespace CoolApi.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.", Type = typeof(ValidationProblemDetails))]
         public ActionResult<UserDetails> PutUser([SwaggerRequestBody(Description = "User new details."), FromBody, Required] UserNewDetails userNewDetails)
         {
-            //var newLogin = userNewDetails.NewLogin;
-            //var newPassword = userNewDetails.NewPassword;
-            //if (newLogin == null && newPassword == null)
-            //    return BadRequest();
+            var newLogin = userNewDetails.NewLogin;
+            var newPassword = userNewDetails.NewPassword;
+            var currentPassword = userNewDetails.CurrentPassword;
+            if (newLogin == null && newPassword == null)
+                return BadRequest();
 
-            //var currentUserId = GetCurrentUserId();
-            //var readOptions = new ReadUserOptions
-            //{
-            //    EntityId = currentUserId
-            //};
-            //var user = _repository.Read(readOptions);
-            //if (user == null)
-            //    return BadRequest();
+            var currentUserId = GetCurrentUserId();
 
-            //var isPasswordValid = _passwordHasher.VerifyPassword(user.PasswordHash, userNewDetails.CurrentPassword);
-            //if (!isPasswordValid)
-            //    return BadRequest();
+            if (newLogin != null)
+            {
+                var isLoginChanged = _userManager.ChangeLogin(currentUserId, newLogin, currentPassword);
+                if (!isLoginChanged)
+                    return BadRequest();
+            }
 
-            //if (newLogin != null)
-            //    user.Login = newLogin;
+            if (newPassword != null)
+            {
+                var isPasswordChanged = _userManager.ChangePassword(currentUserId, newPassword, currentPassword);
+                if (!isPasswordChanged)
+                    return BadRequest();
+            }
 
-            //if (newPassword != null)
-            //{
-            //    var newPasswordHash = _passwordHasher.GetPasswordHash(newPassword);
-            //    user.PasswordHash = newPasswordHash;
-            //}
+            try
+            {
+                _userManager.SaveChanges();
+            }
+            catch (Exception exception)
+            {
+                var error = GetProblemDetails(exception);
+                return BadRequest(error);
+            }
 
-            //var updateOptions = new UpdateUserOptions
-            //{
-            //    Entity = user
-            //};
-            //try
-            //{
-            //    _repository.Update(updateOptions);
-            //    _repository.Save();
-            //}
-            //catch (Exception exception)
-            //{
-            //    var error = GetProblemDetails(exception);
-            //    return BadRequest(error);
-            //}
-
-            //var updatedUser = _repository.Read(readOptions);
-            //var response = GetDto(updatedUser);
-            return new UserDetails();
+            var updatedUser = _userManager.FindById(currentUserId);
+            if (updatedUser == null)
+                return BadRequest("no user");
+            var response = GetDto(updatedUser);
+            return response;
         }
 
         [HttpPost]
@@ -143,40 +129,23 @@ namespace CoolApi.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
         public ActionResult<UserDetails> PostUser([SwaggerRequestBody(Description = "New user details."), FromBody, Required] NewUserDetails newUserDetails)
         {
-            //var newUserId = Guid.NewGuid();
-            //var passwordHash = _passwordHasher.GetPasswordHash(newUserDetails.Password);
-            //var newUser = new User
-            //{
-            //    Id = newUserId,
-            //    Login = newUserDetails.Login,
-            //    PasswordHash = passwordHash
-            //};
+            var newUserId = _userManager.Create(newUserDetails.Login, newUserDetails.Password);
 
-            //var options = new CreateUserOptions
-            //{
-            //    Entity = newUser
-            //};
-            //try
-            //{
-            //    _repository.Create(options);
-            //    _repository.Save();
-            //}
-            //catch (Exception exception)
-            //{
-            //    var error = GetProblemDetails(exception);
-            //    return BadRequest(error);
-            //}
+            try
+            {
+                _userManager.SaveChanges();
+            }
+            catch (Exception exception)
+            {
+                var error = GetProblemDetails(exception);
+                return BadRequest(error);
+            }
 
-            //var readOptions = new ReadUserOptions
-            //{
-            //    EntityId = newUserId
-            //};
-            //var createdUser = _repository.Read(readOptions);
-            //if (createdUser == null)
-            //    return BadRequest("no user");
-
-            //var response = GetDto(createdUser);
-            return new UserDetails();
+            var createdUser = _userManager.FindById(newUserId);
+            if (createdUser == null)
+                return BadRequest("no user");
+            var response = GetDto(createdUser);
+            return response;
         }
 
         [HttpDelete("{id}")]
@@ -186,33 +155,21 @@ namespace CoolApi.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.", Type = typeof(ValidationProblemDetails))]
         public IActionResult DeleteUser(UserConfirmationDetails confirmationDetails)
         {
-            //var currentUserId = GetCurrentUserId();
-            //var readOptions = new ReadUserOptions
-            //{
-            //    EntityId = currentUserId
-            //};
-            //var user = _repository.Read(readOptions);
-            //if (user == null)
-            //    return BadRequest();
+            var currentUserId = GetCurrentUserId();
 
-            //var isPasswordValid = _passwordHasher.VerifyPassword(user.PasswordHash, confirmationDetails.CurrentPassword);
-            //if (!isPasswordValid)
-            //    return BadRequest();
+            var isDeleted = _userManager.Delete(currentUserId, confirmationDetails.CurrentPassword);
+            if (!isDeleted)
+                return BadRequest();
 
-            //var deleteOptions = new DeleteUserOptions
-            //{
-            //    Id = currentUserId
-            //};
-            //try
-            //{
-            //    _repository.Delete(deleteOptions);
-            //    _repository.Save();
-            //}
-            //catch (Exception exception)
-            //{
-            //    var error = GetProblemDetails(exception);
-            //    return BadRequest(error);
-            //}
+            try
+            {
+                _userManager.SaveChanges();
+            }
+            catch (Exception exception)
+            {
+                var error = GetProblemDetails(exception);
+                return BadRequest(error);
+            }
 
             return NoContent();
         }

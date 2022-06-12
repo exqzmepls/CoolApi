@@ -60,6 +60,20 @@ namespace CoolApi.Database.Identity
             return addedUser.Entity.Id;
         }
 
+        public bool Delete(Guid userId, string currentPassword)
+        {
+            var user = FindById(userId);
+            if (user == null)
+                return false;
+
+            var isCurrentPasswordVerified = VerifyPassword(user, currentPassword);
+            if (!isCurrentPasswordVerified)
+                return false;
+
+            _context.Users.Remove(user);
+            return true;
+        }
+
         public User FindById(Guid id)
         {
             var user = _context.Users.Find(id);
