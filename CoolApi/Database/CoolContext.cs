@@ -7,7 +7,7 @@ namespace CoolApi.Database
     {
         public CoolContext(DbContextOptions<CoolContext> options) : base(options)
         {
-            Database.EnsureDeleted();
+            //Database.EnsureDeleted();
             Database.EnsureCreated();
         }
 
@@ -36,6 +36,7 @@ namespace CoolApi.Database
             modelBuilder.Entity<DeletedMessage>().HasKey(e => new { e.DeletedId, e.MessageId });
 
             modelBuilder.Entity<ChatMember>().HasAlternateKey(e => new { e.ChatId, e.UserId });
+            modelBuilder.Entity<User>().HasAlternateKey(e => new { e.Login });
         }
     }
 }

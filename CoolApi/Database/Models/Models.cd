@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="CoolApi.Database.Models.Attachment">
+    <Position X="8" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAgAAAAAAAAAAAAAAAAAAAAAEAAAAIAAAAAA=</HashCode>
+      <FileName>Database\Models\Attachment.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoolApi.Database.Models.Chat">
+    <Position X="0.5" Y="5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAACAAABAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Database\Models\Chat.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoolApi.Database.Models.ChatMember">
+    <Position X="8.25" Y="2.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAADAAAAAAAAAAAAAAAAAAgAAAAAAAgAAAAAAAAAAAQ=</HashCode>
+      <FileName>Database\Models\ChatMember.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoolApi.Database.Models.ChatMemberDeleted">
+    <Position X="0.5" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAgAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>Database\Models\ChatMemberDeleted.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoolApi.Database.Models.ChatMemberMessage">
+    <Position X="4.75" Y="2.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAUAAAAIAAAAAA=</HashCode>
+      <FileName>Database\Models\ChatMemberMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoolApi.Database.Models.Deleted">
+    <Position X="7.75" Y="5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Database\Models\Deleted.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoolApi.Database.Models.DeletedMessage">
+    <Position X="5" Y="5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAAAAEAAAAAAAAAAEAAAAIAAAAAA=</HashCode>
+      <FileName>Database\Models\DeletedMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoolApi.Database.Models.Message">
+    <Position X="3.75" Y="0.5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAkAAAAIAAAAAAAAAAAAAAAACAAAAgA=</HashCode>
+      <FileName>Database\Models\Message.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoolApi.Database.Models.User">
+    <Position X="0.5" Y="2.75" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AACCAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>Database\Models\User.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoolApi.Database.CoolContext">
+    <Position X="12.5" Y="2.75" Width="4.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAACAAAAAEAAGBAAQAAAgAEAAAAAAAAAAAAQAAAAA=</HashCode>
+      <FileName>Database\CoolContext.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.EntityFrameworkCore.DbContext" Collapsed="true">
+    <Position X="14" Y="1.5" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
