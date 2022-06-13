@@ -37,7 +37,7 @@ namespace CoolApi.Controllers
             [SwaggerParameter(Description = "String to search by text of messages."), FromQuery, StringLength(32)] string searchString)
         {
             var userId = GetCurrentUserId();
-            var result = _repository.ReadPortion(offset, portion, (m) => m.ChatMemberMessages.First().ChatMember.ChatId == chatId && m.SendingTimeUtc >= timeFrom && m.SendingTimeUtc <= timeTo && m.Text.Contains(searchString), userId);
+            var result = _repository.ReadPortion(offset, portion, (m) => m.ChatMember.ChatId == chatId && m.SendingTimeUtc >= timeFrom && m.SendingTimeUtc <= timeTo && m.Text.Contains(searchString), userId);
 
             var messages = result.DataCollection;
             var response = new MessagesPortionDetails
@@ -50,7 +50,7 @@ namespace CoolApi.Controllers
                     Id = m.Id,
                     IsViewed = m.IsViewed,
                     SendingTimeUtc = m.SendingTimeUtc,
-                    SenderId = m.ChatMemberMessages.First().ChatMember.UserId,
+                    SenderId = m.ChatMember.UserId,
                     ModificationTimeUtc = m.ModificationTimeUtc,
                     Text = m.Text,
                     AttachmentsCount = m.Attachments.Count()
@@ -104,13 +104,7 @@ namespace CoolApi.Controllers
             {
                 Text = newMessageDetails.Text,
                 Attachments = newMessageDetails.Attachments.Select(a => new Attachment { Content = a }),
-                ChatMemberMessages = new ChatMemberMessage[]
-                {
-                    new ChatMemberMessage
-                    {
-                        ChatMember = new ChatMember{UserId = currentUserId, ChatId = newMessageDetails.ChatId}
-                    }
-                }
+                ChatMember = new ChatMember { UserId = currentUserId, ChatId = newMessageDetails.ChatId }
             };
             try
             {
@@ -158,7 +152,7 @@ namespace CoolApi.Controllers
             var dto = new MessageDetails
             {
                 Id = message.Id,
-                SenderId = message.ChatMemberMessages.First().ChatMember.UserId,
+                SenderId = message.ChatMember.UserId,
                 SendingTimeUtc = message.SendingTimeUtc,
                 IsViewed = message.IsViewed,
                 ModificationTimeUtc = message.ModificationTimeUtc,

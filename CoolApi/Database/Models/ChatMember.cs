@@ -15,7 +15,7 @@ namespace CoolApi.Database.Models
 
         public User User { get; set; }
 
-        public IEnumerable<ChatMemberMessage> ChatMemberMessages { get; set; }
+        public IEnumerable<Message> Messages { get; set; }
 
         public IEnumerable<ChatMemberDeleted> ChatMemberDeleteds { get; set; }
     }
