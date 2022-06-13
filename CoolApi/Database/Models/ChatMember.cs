@@ -9,14 +9,14 @@ namespace CoolApi.Database.Models
 
         public Guid ChatId { get; set; }
 
-        public Chat Chat { get; set; }
+        public virtual Chat Chat { get; set; }
 
         public Guid UserId { get; set; }
 
-        public User User { get; set; }
+        public virtual User User { get; set; }
 
-        public IEnumerable<Message> Messages { get; set; }
+        public virtual ICollection<Message> Messages { get; set; }
 
-        public IEnumerable<ChatMemberDeleted> ChatMemberDeleteds { get; set; }
+        public virtual ICollection<ChatMemberDeleted> ChatMemberDeleteds { get; set; }
     }
 }

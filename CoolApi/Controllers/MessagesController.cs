@@ -103,7 +103,7 @@ namespace CoolApi.Controllers
             var newMessage = new Message
             {
                 Text = newMessageDetails.Text,
-                Attachments = newMessageDetails.Attachments.Select(a => new Attachment { Content = a }),
+                Attachments = newMessageDetails.Attachments.Select(a => new Attachment { Content = a }).ToList(),
                 ChatMember = new ChatMember { UserId = currentUserId, ChatId = newMessageDetails.ChatId }
             };
             try

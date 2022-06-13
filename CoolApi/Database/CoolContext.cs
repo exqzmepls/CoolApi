@@ -32,8 +32,8 @@ namespace CoolApi.Database
             modelBuilder.Entity<ChatMemberDeleted>().HasKey(e => new { e.ChatMemberId, e.DeletedId });
             modelBuilder.Entity<DeletedMessage>().HasKey(e => new { e.DeletedId, e.MessageId });
 
-            modelBuilder.Entity<ChatMember>().HasAlternateKey(e => new { e.ChatId, e.UserId });
-            modelBuilder.Entity<User>().HasAlternateKey(e => new { e.Login });
+            modelBuilder.Entity<ChatMember>().HasIndex(e => new { e.ChatId, e.UserId }).IsUnique();
+            modelBuilder.Entity<User>().HasIndex(e => e.Login).IsUnique();
         }
     }
 }

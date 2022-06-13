@@ -82,9 +82,9 @@ namespace CoolApi.Database.Identity
 
         public UsersCollection<User> FindByLogin(int offset, int count, string loginSubstring)
         {
-            var totalCount = _context.Users.Count();
+            var totalCount = _context.Users.Count(u => loginSubstring == null || u.Login.Contains(loginSubstring));
             var users = _context.Users
-                .Where(u => u.Login.Contains(loginSubstring))
+                .Where(u => loginSubstring == null || u.Login.Contains(loginSubstring))
                 .OrderBy(u => u.Login)
                 .Skip(offset)
                 .Take(count)
