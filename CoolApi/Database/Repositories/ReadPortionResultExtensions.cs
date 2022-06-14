@@ -1,5 +1,6 @@
 ﻿using CoolApi.Database.Models;
 using CoolApiModels.Chats;
+using CoolApiModels.Messages;
 using System.Linq;
 
 namespace CoolApi.Database.Repositories
@@ -21,6 +22,28 @@ namespace CoolApi.Database.Repositories
                 })
             };
             return dto;
+        }
+
+        public static MessagesPortionDetails GetDto(this ReadPortionResult<Message> messagesPortion)
+        {
+            var messages = messagesPortion.DataCollection;
+            var response = new MessagesPortionDetails
+            {
+                Offset = messagesPortion.Offset,
+                Portion = messages.Count(),
+                TotalCount = messagesPortion.TotalCount,
+                Content = messages.Select(m => new MessageShortDetails
+                {
+                    Id = m.Id,
+                    IsViewed = m.IsViewed,
+                    SendingTimeUtc = m.SendingTimeUtc,
+                    SenderId = m.ChatMember.UserId,
+                    ModificationTimeUtc = m.ModificationTimeUtc,
+                    Text = m.Text,
+                    AttachmentsCount = m.Attachments.Count
+                })
+            };
+            return response;
         }
     }
 }

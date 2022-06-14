@@ -10,9 +10,12 @@ namespace CoolApi.Database.Repositories
     {
         private readonly CoolContext _context;
 
+        private readonly IRepository<Message> _messagesRepository;
+
         public ChatRepository(CoolContext context)
         {
             _context = context;
+            _messagesRepository = new MessageRepository(context);
         }
 
         public Guid Create(Chat entity, Guid userId)
@@ -84,23 +87,22 @@ namespace CoolApi.Database.Repositories
 
         public ReadPortionResult<Chat> ReadPortion(int offset, int size, Expression<Func<Chat, bool>> filter, Guid userId)
         {
-            var chatMemberments = _context.ChatMembers.Where(m => m.Chat.ChatMembers.Any(m => m.UserId == userId));
-
-            var visibleMessages = chatMemberments.Where(m => m.Messages.Any(m => !m.DeletedMessages.Any()));
-            var visibleChats = chatMemberments.Where(m => m.Messages.Any());
-            var totalConut = _context.Chats.Where(c => c.ChatMembers.Any(m => m.UserId == userId))
-                .Where(c => c.ChatMembers.First(m => m.UserId == userId).Messages.Any(m => !m.DeletedMessages.Any(d => d.Deleted.ChatMemberDeleteds.Any(d => d.ChatMember.UserId == userId))))
-                .Count();
-            var chats = _context.Chats.Where(c => c.ChatMembers.Any(m => m.UserId == userId))
-                .Where(c => c.ChatMembers.First(m => m.UserId == userId).Messages.Any(m => !m.DeletedMessages.Any()))
+            var userChats = _context.Chats
+                .Where(c => c.ChatMembers.Any(m => m.UserId == userId))
                 .Where(filter)
+                .ToList();
+            var lastVisibleMessages = userChats
+                .Select(c => _messagesRepository.ReadPortion(0, 1, (m) => m.ChatMember.ChatId == c.Id, userId).DataCollection.SingleOrDefault())
+                .Where(m => m != null);
+            var totalCount = lastVisibleMessages.Count();
+            var chats = lastVisibleMessages
                 .Skip(offset)
                 .Take(size)
-                .ToList();
+                .Select(m => m.ChatMember.Chat);
 
             var portion = new ReadPortionResult<Chat>
             {
-                TotalCount = totalConut,
+                TotalCount = totalCount,
                 Offset = offset,
                 DataCollection = chats
             };

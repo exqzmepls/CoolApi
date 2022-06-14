@@ -1,4 +1,5 @@
 ﻿using CoolApiModels.Chats;
+using CoolApiModels.Messages;
 using CoolApiModels.Users;
 using System.Linq;
 
@@ -27,6 +28,19 @@ namespace CoolApi.Database.Models.Extensions
             return dto;
         }
 
-
+        public static MessageDetails GetDto(this Message message)
+        {
+            var dto = new MessageDetails
+            {
+                Id = message.Id,
+                SenderId = message.ChatMember.UserId,
+                SendingTimeUtc = message.SendingTimeUtc,
+                IsViewed = message.IsViewed,
+                ModificationTimeUtc = message.ModificationTimeUtc,
+                Text = message.Text,
+                Attachments = message.Attachments?.Select(a => a.Content)
+            };
+            return dto;
+        }
     }
 }
