@@ -54,7 +54,7 @@ namespace CoolApi.Database.Repositories
 
         public void Delete(Guid entityId, Guid userId)
         {
-            var chat = _context.Chats.Find(entityId);
+            var chat = Read(entityId, userId);
             if (chat == null)
                 throw new Exception("Chat not found");
 
@@ -62,6 +62,7 @@ namespace CoolApi.Database.Repositories
             Save();
         }
 
+        // pox
         public void Hide(Guid entityId, Guid userId)
         {
 

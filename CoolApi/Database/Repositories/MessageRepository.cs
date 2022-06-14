@@ -61,10 +61,15 @@ namespace CoolApi.Database.Repositories
 
         public void Delete(Guid entityId, Guid userId)
         {
+            var message = Read(entityId, userId);
+            if (message == null)
+                throw new Exception("Message not found");
 
+            _context.Messages.Remove(message);
             Save();
         }
 
+        // later
         public void Hide(Guid entityId, Guid userId)
         {
 
@@ -116,7 +121,17 @@ namespace CoolApi.Database.Repositories
 
         public void Update(Message entity, Guid userId)
         {
+            var message = Read(entity.Id, userId);
+            if (message == null)
+                throw new Exception("Message not found");
 
+            if (message.ChatMember.UserId == userId)
+            {
+                if (string.IsNullOrEmpty(entity.Text) && (entity.Attachments == null || !entity.Attachments.Any()))
+                    throw new Exception("Text and Attachments are empty.");
+
+
+            }
             Save();
         }
 

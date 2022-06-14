@@ -75,13 +75,27 @@ namespace CoolApi.Controllers
             [SwaggerRequestBody(Description = "Message new details."), FromBody, Required] MessageNewDetails messageNewDetails)
         {
             var currentUserId = this.GetCurrentUserId();
-            // todo logic
-
-            var updatedMessage = _repository.Read(id, currentUserId);
-            if (updatedMessage == null)
-                return NotFound();
-            var response = updatedMessage.GetDto();
-            return response;
+            var message = new Message
+            {
+                Id = id,
+                Text = messageNewDetails.Text,
+                IsViewed = messageNewDetails.IsViewed.HasValue ? messageNewDetails.IsViewed.Value : false,
+                Attachments = messageNewDetails.Attachments?.Select(a => new Attachment { Content = a }).ToList()
+            };
+            try
+            {
+                _repository.Update(message, currentUserId);
+                var updatedMessage = _repository.Read(id, currentUserId);
+                if (updatedMessage == null)
+                    return NotFound();
+                var response = updatedMessage.GetDto();
+                return response;
+            }
+            catch (Exception exception)
+            {
+                var error = exception.GetProblemDetails();
+                return BadRequest(error);
+            }
         }
 
         [HttpPost]
