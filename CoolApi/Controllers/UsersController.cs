@@ -11,6 +11,12 @@ using CoolApi.Database.Identity;
 using CoolApi.Database.Models.Extensions;
 using CoolApiModels.Users;
 using CoolApi.Extensions;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using System.Security.Claims;
+using System.Collections.Generic;
 
 namespace CoolApi.Controllers
 {
@@ -19,9 +25,11 @@ namespace CoolApi.Controllers
     public class UsersController : ControllerBase
     {
         private readonly UserManager _userManager;
+        private readonly IConfiguration _configuration;
 
-        public UsersController(CoolContext context)
+        public UsersController(CoolContext context, IConfiguration configuration)
         {
+            _configuration = configuration;
             var passwordHasher = new SHA256PasswordHasher();
             _userManager = new UserManager(context, passwordHasher);
         }
@@ -66,16 +74,30 @@ namespace CoolApi.Controllers
 
         [HttpGet("auth")]
         [SwaggerOperation(Summary = "Performs user authentication.")]
-        [SwaggerResponse(StatusCodes.Status204NoContent, Description = "Successful authentication.")]
+        [SwaggerResponse(StatusCodes.Status200OK, Description = "Successful authentication.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Authentication error (wrong login or password).")]
-        public IActionResult Authenticate([SwaggerParameter(Description = "User login."), FromQuery, Required] string login,
+        public ActionResult<AuthenticatedResult> Authenticate([SwaggerParameter(Description = "User login."), FromQuery, Required] string login,
             [SwaggerParameter(Description = "User password."), FromQuery, Required] string password)
         {
-            var isPasswordValid = _userManager.VerifyPassword(login, password);
-            if (isPasswordValid)
-                return NoContent();
+            var isPasswordValid = _userManager.VerifyPassword(login, password, out var userId);
+            if (!isPasswordValid)
+                return BadRequest();
 
-            return BadRequest();
+            var claims = new List<Claim> { new Claim("id", userId.ToString()) };
+            var exp = DateTime.UtcNow.Add(TimeSpan.FromHours(6));
+            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+            var signingCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256);
+            var jwt = new JwtSecurityToken(
+                claims: claims,
+                expires: exp,
+                signingCredentials: signingCredentials);
+            var token = new JwtSecurityTokenHandler().WriteToken(jwt);
+            var authenticatedResult = new AuthenticatedResult
+            {
+                UserId = userId,
+                Token = token
+            };
+            return authenticatedResult;
         }
 
         [HttpPut]

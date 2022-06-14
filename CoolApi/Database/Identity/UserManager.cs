@@ -103,12 +103,17 @@ namespace CoolApi.Database.Identity
             _context.SaveChanges();
         }
 
-        public bool VerifyPassword(string login, string password)
+        public bool VerifyPassword(string login, string password, out Guid userId)
         {
             var user = _context.Users.SingleOrDefault(u => u.Login == login);
             if (user == null)
+            {
+                userId = Guid.Empty;
                 return false;
+            }
+                
             var isPasswordVerified = VerifyPassword(user, password);
+            userId = user.Id;
             return isPasswordVerified;
         }
 
