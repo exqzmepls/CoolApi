@@ -127,11 +127,24 @@ namespace CoolApi.Database.Repositories
 
             if (message.ChatMember.UserId == userId)
             {
-                if (string.IsNullOrEmpty(entity.Text) && (entity.Attachments == null || !entity.Attachments.Any()))
+                var isTextEmpty = string.IsNullOrEmpty(entity.Text);
+                var isAttacmentsEmpty = entity.Attachments == null || !entity.Attachments.Any();
+                if (isTextEmpty && isAttacmentsEmpty)
                     throw new Exception("Text and Attachments are empty.");
 
-
+                if (!isTextEmpty)
+                {
+                    message.Text = entity.Text;
+                    message.ModificationTimeUtc = DateTime.UtcNow;
+                }
             }
+            else
+            {
+                if (!entity.IsViewed)
+                    throw new Exception("Cannot set unviewed");
+                message.IsViewed = true;
+            }
+            _context.Messages.Update(message);
             Save();
         }
 
