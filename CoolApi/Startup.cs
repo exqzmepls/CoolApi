@@ -27,7 +27,7 @@ namespace CoolApi
             services.AddControllers();
 
             var connetionString = Configuration.GetConnectionString("DebugDb");
-            services.AddDbContext<CoolContext>(options => options.UseSqlServer(connetionString));
+            services.AddDbContext<CoolContext>(options => options.UseLazyLoadingProxies().UseSqlServer(connetionString));
 
             var key = Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]);
             var tokenParameters = new TokenValidationParameters

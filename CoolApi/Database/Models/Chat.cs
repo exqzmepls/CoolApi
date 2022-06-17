@@ -9,6 +9,6 @@ namespace CoolApi.Database.Models
 
         public DateTime CreationTimeUtc { get; set; }
 
-        public IEnumerable<ChatMember> ChatMembers { get; set; }
+        public virtual ICollection<ChatMember> ChatMembers { get; set; }
     }
 }

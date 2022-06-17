@@ -1,15 +1,15 @@
 ﻿using System;
-using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using CoolApi.Database;
 using CoolApiModels.Chats;
 using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
-using CoolApiModels.Users;
 using Microsoft.AspNetCore.Authorization;
 using CoolApi.Database.Repositories;
 using CoolApi.Database.Models;
+using CoolApi.Database.Models.Extensions;
+using CoolApi.Extensions;
 
 namespace CoolApi.Controllers
 {
@@ -32,37 +32,26 @@ namespace CoolApi.Controllers
         public ActionResult<ChatsPortionDetails> GetChats([SwaggerParameter(Description = "Offset of portion."), FromQuery, Required, Range(0, int.MaxValue)] int offset,
             [SwaggerParameter(Description = "Portion size."), FromQuery, Required, Range(1, 30)] int portion)
         {
-            var userId = GetCurrentUserId();
-            var result = _repository.ReadPortion(offset, portion, (c) => true, userId);
+            var userId = this.GetCurrentUserId();
+            var result = _repository.ReadPortion(offset, portion, (chat) => true, userId);
 
-            var chats = result.DataCollection;
-            var response = new ChatsPortionDetails
-            {
-                Offset = offset,
-                Portion = chats.Count(),
-                TotalCount = result.TotalCount,
-                Content = chats.Select(c => new ChatShortDetails
-                {
-                    Id = c.Id,
-                    CreationTimeUtc = c.CreationTimeUtc
-                })
-            };
+            var response = result.GetDto();
             return response;
         }
 
         [HttpGet("{id}")]
-        [SwaggerOperation(Summary = "Reads chat description by ID.")]
+        [SwaggerOperation(Summary = "Reads chat description by chat ID (or other user in chat ID).")]
         [SwaggerResponse(StatusCodes.Status200OK, Description = "Returns chat description.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, Description = "ID does not exist.")]
         public ActionResult<ChatDetails> GetChat([SwaggerParameter(Description = "Chat ID.")] Guid id)
         {
-            var userId = GetCurrentUserId();
+            var userId = this.GetCurrentUserId();
             var chat = _repository.Read(id, userId);
 
             if (chat == null)
                 return NotFound();
 
-            var response = GetDto(chat);
+            var response = chat.GetDto();
             return response;
         }
 
@@ -72,7 +61,7 @@ namespace CoolApi.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, Description = "Invalid operation.")]
         public ActionResult<ChatDetails> PostChat([SwaggerRequestBody(Description = "New chat details."), FromBody, Required] NewChatDetails newChatDetails)
         {
-            var userId = GetCurrentUserId();
+            var userId = this.GetCurrentUserId();
             var newChat = new Chat
             {
                 ChatMembers = new ChatMember[]
@@ -89,12 +78,12 @@ namespace CoolApi.Controllers
                 if (createdChat == null)
                     return BadRequest("no chat");
 
-                var response = GetDto(createdChat);
+                var response = createdChat.GetDto();
                 return response;
             }
             catch (Exception exception)
             {
-                var error = GetProblemDetails(exception);
+                var error = exception.GetProblemDetails();
                 return BadRequest(error);
             }
         }
@@ -106,7 +95,7 @@ namespace CoolApi.Controllers
         public IActionResult DeleteChat([SwaggerParameter(Description = "Chat ID.")] Guid id,
             [SwaggerParameter(Description = "Must chat be deleted for all chat members."), FromQuery, Required] bool isForAll)
         {
-            var userId = GetCurrentUserId();
+            var userId = this.GetCurrentUserId();
             try
             {
                 if (isForAll)
@@ -116,46 +105,11 @@ namespace CoolApi.Controllers
             }
             catch (Exception exception)
             {
-                var error = GetProblemDetails(exception);
+                var error = exception.GetProblemDetails();
                 return BadRequest(error);
             }
 
             return NoContent();
-        }
-
-
-        private static ChatDetails GetDto(Chat chat)
-        {
-            var dto = new ChatDetails
-            {
-                Id = chat.Id,
-                CreationTimeUtc = chat.CreationTimeUtc,
-                ChatMembers = chat.ChatMembers.Select(m => new UserDetails
-                {
-                    Id = m.UserId,
-                    Login = m.User.Login
-                })
-            };
-            return dto;
-        }
-
-        private static ProblemDetails GetProblemDetails(Exception exception)
-        {
-            var details = new ProblemDetails
-            {
-                Type = exception.GetType().Name,
-                Detail = exception.Message,
-                Status = StatusCodes.Status400BadRequest
-            };
-
-            return details;
-        }
-
-        private Guid GetCurrentUserId()
-        {
-            var idValue = User.Claims.Single(c => c.Type == "id").Value;
-
-            return Guid.Parse(idValue);
         }
     }
 }

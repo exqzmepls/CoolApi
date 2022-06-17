@@ -9,8 +9,8 @@ namespace CoolApi.Database.Models
 
         public DateTime TimeUtc { get; set; }
 
-        public IEnumerable<DeletedMessage> DeletedMessages { get; set; }
+        public virtual ICollection<DeletedMessage> DeletedMessages { get; set; }
 
-        public IEnumerable<ChatMemberDeleted> ChatMemberDeleteds { get; set; }
+        public virtual ICollection<ChatMemberDeleted> ChatMemberDeleteds { get; set; }
     }
 }

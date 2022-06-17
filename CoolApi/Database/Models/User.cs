@@ -11,6 +11,6 @@ namespace CoolApi.Database.Models
 
         public string PasswordHash { get; set; }
 
-        public IEnumerable<ChatMember> ChatMemberments { get; set; }
+        public virtual ICollection<ChatMember> ChatMembers { get; set; }
     }
 }

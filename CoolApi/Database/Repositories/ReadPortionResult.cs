@@ -6,6 +6,8 @@ namespace CoolApi.Database.Repositories
     {
         public int TotalCount { get; init; }
 
+        public int Offset { get; init; }
+
         public IEnumerable<TEntity> DataCollection { get; init; }
     }
 }

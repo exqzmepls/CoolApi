@@ -15,10 +15,12 @@ namespace CoolApi.Database.Models
 
         public string Text { get; set; }
 
-        public IEnumerable<Attachment> Attachments { get; set; }
+        public Guid ChatMemberId { get; set; }
 
-        public IEnumerable<ChatMemberMessage> ChatMemberMessages { get; set; }
+        public virtual ChatMember ChatMember { get; set; }
 
-        public IEnumerable<DeletedMessage> DeletedMessages { get; set; }
+        public virtual ICollection<Attachment> Attachments { get; set; }
+
+        public virtual ICollection<DeletedMessage> DeletedMessages { get; set; }
     }
 }

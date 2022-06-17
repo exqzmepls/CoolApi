@@ -23,20 +23,17 @@ namespace CoolApi.Database
 
         public DbSet<Deleted> Deleteds { get; set; }
 
-        public DbSet<ChatMemberMessage> ChatMemberMessages { get; set; }
-
         public DbSet<ChatMemberDeleted> ChatMemberDeleteds { get; set; }
 
         public DbSet<DeletedMessage> DeletedMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ChatMemberMessage>().HasKey(e => new { e.ChatMemberId, e.MessageId });
             modelBuilder.Entity<ChatMemberDeleted>().HasKey(e => new { e.ChatMemberId, e.DeletedId });
             modelBuilder.Entity<DeletedMessage>().HasKey(e => new { e.DeletedId, e.MessageId });
 
-            modelBuilder.Entity<ChatMember>().HasAlternateKey(e => new { e.ChatId, e.UserId });
-            modelBuilder.Entity<User>().HasAlternateKey(e => new { e.Login });
+            modelBuilder.Entity<ChatMember>().HasIndex(e => new { e.ChatId, e.UserId }).IsUnique();
+            modelBuilder.Entity<User>().HasIndex(e => e.Login).IsUnique();
         }
     }
 }

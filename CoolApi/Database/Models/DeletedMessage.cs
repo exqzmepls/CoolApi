@@ -6,10 +6,10 @@ namespace CoolApi.Database.Models
     {
         public Guid MessageId { get; set; }
 
-        public Message Message { get; set; }
+        public virtual Message Message { get; set; }
 
         public Guid DeletedId { get; set; }
 
-        public Deleted Deleted { get; set; }
+        public virtual Deleted Deleted { get; set; }
     }
 }
