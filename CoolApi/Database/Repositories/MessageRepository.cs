@@ -69,7 +69,6 @@ namespace CoolApi.Database.Repositories
             Save();
         }
 
-        // later
         public void Hide(Guid entityId, Guid userId)
         {
 

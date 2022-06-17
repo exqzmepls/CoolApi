@@ -62,7 +62,6 @@ namespace CoolApi.Database.Repositories
             Save();
         }
 
-        // pox
         public void Hide(Guid entityId, Guid userId)
         {
 
