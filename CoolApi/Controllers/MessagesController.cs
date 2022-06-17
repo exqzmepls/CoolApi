@@ -79,7 +79,7 @@ namespace CoolApi.Controllers
             {
                 Id = id,
                 Text = messageNewDetails.Text,
-                IsViewed = messageNewDetails.IsViewed.HasValue ? messageNewDetails.IsViewed.Value : false,
+                IsViewed = messageNewDetails.IsViewed ?? false,
                 Attachments = messageNewDetails.Attachments?.Select(a => new Attachment { Content = a }).ToList()
             };
             try
